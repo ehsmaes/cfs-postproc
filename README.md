@@ -1,5 +1,7 @@
 # cfs_postproc — Creality CFS flush-matrix scaler + safe pre-cut inserts
 
+**Note:** The updated `box.cfg` configuration included in this repository is part of the optimization process and has been optimized to the best of my ability based on testing and analysis of the CFS system behavior.
+
 **What it does**
 - Reads the Creality Print comments:
   - `; flush_multiplier = <float>`
