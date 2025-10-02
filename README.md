@@ -52,9 +52,6 @@ The Creality CFS firmware is designed to parse the `; flush_volumes_matrix = ...
 - `src/cfs_postproc/cfs_postproc_rightclick.py` – simple right-click/CLI wrapper for batch processing
 - `src/cfs_postproc/__init__.py` – package initialization
 - `src/cfs_postproc/__main__.py` – enables running as module: `python -m cfs_postproc`
-- `pyproject.toml` – Python package configuration and dependencies
-- `Makefile` – build and development commands
-- `tests/` – unit and integration tests
 - `samples/` – sample G-code files and configuration examples
 
 ## Install
