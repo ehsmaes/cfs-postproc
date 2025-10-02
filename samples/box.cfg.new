@@ -1,0 +1,119 @@
+[serial_485 serial485]
+serial: /dev/serial/by-id/usb-1a86_USB_Serial-if00-port0
+baud: 230400
+
+[auto_addr]
+
+# Configuration comments show original values after # symbol for comparison
+# Format: parameter: new_value #original_value #descriptive_comment
+[box]
+bus:serial485                         # Required: communication with the CFS box
+filament_sensor:filament_sensor_2     # Active filament sensor channel
+
+# --- Cutting and positioning ---
+pre_cut_pos_x: 42.0                   # Pre-cut X position (left chute)
+pre_cut_pos_y: 160.0                  # Pre-cut Y position
+cut_pos_x: 42.0                       # Cut position X (left chute)
+cut_pos_y: 223.2 # 225                # Cut position Y
+cut_pos_offset: 1.3                   # Fine Y offset during cut
+cut_find_start_offset_y: 6            # Offset to begin checking cut sensor
+cut_velocity: 8000                    # High-speed cut motion
+
+# --- Retraction and extrusion before/after cut ---
+Tn_retrude: -60                       # Backward pull before cut. Lower may cause jams, higher may cause underfill
+Tn_retrude_velocity: 3600             # Speed of retraction
+
+Tn_extrude_temp: 230 # 220            # Pre-extrude nozzle temp
+Tn_extrude: 90 # 140                  # Single purge blob extrusion. Too low = shute repetition. Too high = ooze.
+Tn_extrude_velocity: 600 # 360        # Extrude speed (typ. 300–600). Higher = faster blob.
+
+# --- Optional nozzle pre-cleaning phase ---
+box_first_clean_length: 90 # 140      # Initial clean length — triggers one short poop at the first color
+box_need_clean_length: 90 # 140       # Regular clean length for subsequent tool changes
+box_need_clean_length_max: 90 # 140   # Maximum — keep equal to need to avoid repeated poop cycles
+
+# --- Internal retry and flow parameters ---
+buffer_empty_len: 30                  # Mandatory reserve retraction buffer
+box_extrude_retry_num: 0 # 5          # Retry attempts if extrusion is bad. 0 = no retry
+
+tn_line_len: 0 #40.00                 # Appears unused in FW 2.x.x.33
+
+# --- Nozzle wipe and extrude positions ---
+has_extrude_pos: 1                    # 1 = use extrude/wipe coordinates. 0 = disables nozzle movement
+
+extrude_pos_x: 148.5 # 148.0          # Where nozzle should extrude the initial blob
+extrude_pos_y: 225.0 # 200.00         
+extrude_pos_z: 40.0 # 30.0            # Vertical safe extrude height
+
+clean_left_pos_x: 153.5               # Left wipe position (PTFE pad)
+clean_left_pos_y: 225.3 # 222.5      
+clean_right_pos_x: 178.0              # Right wipe position
+clean_right_pos_y: 214.0 # 225.3      
+
+#clean_velocity: 3600                # Appears unsupported or ignored in FW 2.x.x.33
+safe_pos_y: 200.0 # 215              # Safe fallback Y (optional)
+
+cut_run_count: 1                     # Number of cut attempts
+switch_pin: nozzle_mcu:PA8           # Pin controlling the filament switch servo
+version: 1                           # Required: config version for CFS box
+
+retrude_position_x: 42               # Retraction position X
+retrude_position_y: 100              # Retraction position Y
+
+#cr_machine: 1                       # Not required unless using K1SE (default = 0 for K1)
+
+
+
+[gcode_macro BOX_CHECK_MATERIAL]
+gcode:
+  WAIT_EXTRUSION_ALL_MATERIALS
+
+[gcode_macro BOX_LOAD_MATERIAL_WITH_MATERIAL]
+gcode:
+  RESPOND PREFIX="DEBUG" MSG="=== CUSTOM BOX_LOAD_MATERIAL_WITH_MATERIAL CALLED ==="
+  M104
+  IF_NEED_HOME
+  BOX_ERROR_CLEAR
+  BOX_CHECK_MATERIAL
+  BOX_CUT_MATERIAL
+  BOX_RETRUDE_MATERIAL
+  BOX_GO_TO_EXTRUDE_POS
+  BOX_NOZZLE_CLEAN
+  BOX_EXTRUDE_MATERIAL
+  BOX_EXTRUDER_EXTRUDE
+  BOX_MATERIAL_FLUSH
+  RESTORE_POSITION
+
+[gcode_macro BOX_LOAD_MATERIAL_WITHOUT_MATERIAL]
+gcode:
+  RESPOND PREFIX="DEBUG" MSG="=== CUSTOM BOX_LOAD_MATERIAL_WITHOUT_MATERIAL CALLED ==="
+  M104
+  BOX_CHECK_MATERIAL
+  BOX_EXTRUDE_MATERIAL
+  BOX_EXTRUDER_EXTRUDE
+  BOX_MATERIAL_FLUSH
+
+[gcode_macro BOX_QUIT_MATERIAL]
+gcode:
+  BOX_ERROR_CLEAR
+  BOX_CHECK_MATERIAL
+  BOX_CUT_MATERIAL
+  BOX_RETRUDE_MATERIAL
+  BOX_GO_TO_BOX_EXTRUDE_POS
+  ;BOX_RETRUDE_MATERIAL_WITH_TNN
+  ;BOX_MOVE_TO_SAFE_POS
+
+# eg:
+# BOX_EXTRUDE_MATERIAL TNN=T1A
+# BOX_EXTRUDER_EXTRUDE TNN=T1A
+# BOX_MATERIAL_FLUSH LEN=100 VELOCITY=360 TEMP=220
+# BOX_RETRUDE_MATERIAL_WITH_TNN TNN=T1A
+
+[gcode_macro BOX_INFO_REFRESH]
+gcode:
+  BOX_SET_PRE_LOADING ADDR={params.ADDR} NUM={params.NUM} ACTION=RUN
+  M400
+  BOX_GET_RFID ADDR={params.ADDR} NUM={params.NUM}
+  M400
+  BOX_GET_REMAIN_LEN ADDR={params.ADDR} NUM={params.NUM}
+  M400
