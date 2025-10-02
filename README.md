@@ -41,6 +41,12 @@ The Creality CFS firmware is designed to parse the `; flush_volumes_matrix = ...
 - **Creality Print**: Has a flush volume grid UI that **does work** and writes the matrix to the G-code comment
 - **Note**: Manual changes to the grid in Creality Print UI may not always be reflected in the resulting G-code due to slicer limitations
 
+**Prime Towers and Purge Behavior:**
+- **Tool change variable flushing/purging** is controlled by the **CFS box firmware**, not the slicer
+- **Prime towers** can be used to improve print quality by ensuring proper nozzle priming, but this is **in addition to** the firmware-controlled purge
+- **Tower purges are invariable** - they flush the specified volume to the tower regardless of which tool change is occurring
+- **When using prime towers**, the grid multiplier can be **reduced** since the tower handles some of the purging, reducing overall filament waste
+
 ## Files
 - `src/cfs_postproc/cfs_postproc.py` – main post-processor script
 - `src/cfs_postproc/cfs_postproc_rightclick.py` – simple right-click/CLI wrapper for batch processing
