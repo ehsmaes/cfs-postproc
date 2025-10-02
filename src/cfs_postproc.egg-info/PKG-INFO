@@ -1,0 +1,87 @@
+Metadata-Version: 2.4
+Name: cfs-postproc
+Version: 0.1.0
+Summary: Post-processing tools for Creality CFS flush volumes and G-code tweaks.
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Dynamic: license-file
+
+# cfs_postproc — Creality CFS flush-matrix scaler + safe pre-cut inserts
+
+**What it does**
+- Reads the Creality Print comments:
+  - `; flush_multiplier = <float>`
+  - `; flush_volumes_matrix = <16 integers>` (row-major, 4×4 for T0..T3 → T0..T3)
+- Because the printer firmware **ignores the multiplier**, this tool:
+  - **Applies the multiplier** to the 16 matrix values (mm³),
+  - **Rounds to integers**, and
+  - **Rewrites** the `flush_volumes_matrix` line in the G-code.
+- **Safety:** it also rewrites any `; flush_multiplier = ...` in the output to **`1.0`**
+  to avoid accidental double scaling if firmware ever starts honoring it. The actual
+  **applied multiplier** is recorded in the header as `; applied_flush_multiplier: ...`.
+- Leaves purge/prime tower and slicer motions **intact** (no removal, no `CFS_PURGE`).
+- Still improves reliability by inserting a **pre-cut retract sequence** at each *real* tool transition:
+  - Small **depart Z-hop**
+  - **Auto-park** at the **wipe/prime tower center** (if detected; or you can override)
+  - **Pre-cut retract** to reduce post-cut ooze
+- Adds optional **console sentinels** (`M118`) so you can see transitions & pre-cut clearly in Fluidd/Mainsail.
+
+## Files
+- `cfs_postproc.py` – main post-processor.
+- `cfs_postproc_rightclick.py` – simple right-click/CLI wrapper.
+
+## Install
+Place both files somewhere convenient, e.g. `~/Documents/scripts/` and make them executable:
+```bash
+chmod +x ~/Documents/scripts/cfs_postproc.py
+chmod +x ~/Documents/scripts/cfs_postproc_rightclick.py
+```
+
+## Usage
+### A) Command line (single file)
+```bash
+python3 ~/Documents/scripts/cfs_postproc.py input.gcode output_scaled_precut.gcode \
+  --m118-sentinels --console-summary
+```
+
+### B) Command line (right-click wrapper)
+```bash
+python3 ~/Documents/scripts/cfs_postproc_rightclick.py /path/to/file.gcode
+# or multiple
+python3 ~/Documents/scripts/cfs_postproc_rightclick.py *.gcode
+```
+The wrapper writes `*_scaled_precut.gcode` next to the source.
+
+## CLI options (main script)
+```
+cfs_postproc.py input.gcode output.gcode [options]
+
+--precut-mm <float>      Pre-cut retract length in mm (default: 80.0)
+--precut-f <int>         Pre-cut retract feedrate (default: 600)
+--zhop-mm <float>        Small depart Z-hop before moving to park (default: 0.6)
+--zhop-f <int>           Z-hop feedrate (default: 3000)
+--travel-f <int>         XY travel feedrate to park (default: 18000)
+--precut-park-xy "X,Y"   Override park position (default: auto-detect tower center)
+--m118-sentinels         Print console markers around transitions & pre-cuts (M118)
+--console-summary        Print the header report to the console
+```
+
+## Header example
+```
+; Post-processed by cfs_postproc on 2025-10-01T12:34:56
+; applied_flush_multiplier: 0.250000
+; original flush_volumes_matrix (mm^3):
+;      0,  106,  114,   70
+;    124,    0,  113,   81
+;    195,  184,    0,   72
+;    190,  214,  151,    0
+; scaled flush_volumes_matrix (mm^3) written:
+;      0,   27,   29,   18
+;     31,    0,   28,   20
+;     49,   46,    0,   18
+;     48,   54,   38,    0
+; pre-cut: 80.0mm @ F600
+; park XY: X159.500 Y39.750 (tower-center autodetect)
+; (Any `; flush_multiplier = ...` lines in the output are forced to `1.0` as a guard)
+```

@@ -1,0 +1,2 @@
+[console_scripts]
+cfs-postproc = cfs_postproc.__main__:main

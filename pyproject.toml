@@ -1,13 +1,23 @@
 [build-system]
 requires = ["setuptools", "wheel"]
 
+[project]
+name = "cfs-postproc"
+version = "0.1.0"
+description = "Post-processing tools for Creality CFS flush volumes and G-code tweaks."
+readme = "README.md"
+requires-python = ">=3.9"
+
+[project.scripts]
+cfs-postproc = "cfs_postproc.__main__:main"
+
 [tool.black]
 line-length = 100
-target-version = ["py311"]
+target-version = ["py39"]
 
 [tool.ruff]
 line-length = 100
-target-version = "py311"
+target-version = "py39"
 select = ["E","F","I","UP","B"]
 ignore = ["E203","E501"]
 

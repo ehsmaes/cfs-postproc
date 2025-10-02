@@ -1,0 +1,12 @@
+LICENSE
+README.md
+pyproject.toml
+src/cfs_postproc/__init__.py
+src/cfs_postproc/__main__.py
+src/cfs_postproc/cfs_postproc.py
+src/cfs_postproc/cfs_postproc_rightclick.py
+src/cfs_postproc.egg-info/PKG-INFO
+src/cfs_postproc.egg-info/SOURCES.txt
+src/cfs_postproc.egg-info/dependency_links.txt
+src/cfs_postproc.egg-info/entry_points.txt
+src/cfs_postproc.egg-info/top_level.txt
