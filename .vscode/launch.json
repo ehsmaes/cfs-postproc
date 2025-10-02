@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run cfs_postproc (module)",
+      "type": "python",
+      "request": "launch",
+      "module": "cfs_postproc.cfs_postproc",
+      "cwd": "${workspaceFolder}",
+      "env": { "PYTHONPATH": "src" },
+      "args": [
+        "samples/input.gcode",
+        "out/input_scaled_precut.gcode",
+        "--m118-sentinels",
+        "--console-summary"
+      ]
+    }
+  ]
+}
