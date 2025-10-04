@@ -37,6 +37,8 @@ from pathlib import Path
 # ---------- Regexes ----------
 RE_FLUSH_MULT = re.compile(r"^\s*;\s*flush_multiplier\s*=\s*([0-9]*\.?[0-9]+)\s*$", re.I)
 RE_FLUSH_MATRIX = re.compile(r"^\s*;\s*flush_volumes_matrix\s*=\s*([0-9,\s]+)\s*$", re.I)
+RE_PRIME_VOLUME = re.compile(r"^\s*;\s*prime_volume\s*=\s*([0-9]+)\s*$", re.I)
+RE_ENABLE_PRIME_TOWER = re.compile(r"^\s*;\s*enable_prime_tower\s*=\s*([01])\s*$", re.I)
 
 WT_STARTS = [
     re.compile(p, re.I)
@@ -135,6 +137,8 @@ def main():
     flush_mult_idx = None
     matrix_line_idx = None
     matrix_nums = None
+    prime_volume = None
+    enable_prime_tower = 0  # Default to 0 (disabled)
 
     for i, ln in enumerate(lines):
         if flush_mult is None:
@@ -152,6 +156,21 @@ def main():
                 if parsed:
                     matrix_line_idx = i
                     matrix_nums = parsed
+        if prime_volume is None:
+            pv = RE_PRIME_VOLUME.match(ln)
+            if pv:
+                try:
+                    prime_volume = int(pv.group(1))
+                except ValueError:
+                    prime_volume = None
+
+        # Check for enable_prime_tower setting
+        ep = RE_ENABLE_PRIME_TOWER.match(ln)
+        if ep:
+            try:
+                enable_prime_tower = int(ep.group(1))
+            except ValueError:
+                enable_prime_tower = 0
 
     park_xy = None
     if args.precut_park_xy:
@@ -173,6 +192,19 @@ def main():
     if (matrix_nums is not None) and (flush_mult is not None):
         applied_mult = flush_mult
         scaled_matrix = [max(0, int(round(v * applied_mult))) for v in matrix_nums]
+
+        # If prime tower is enabled and prime_volume is found, subtract it from scaled matrix values
+        if enable_prime_tower == 1 and prime_volume is not None and prime_volume > 0:
+            # Subtract prime_volume from each value, but never go below 100 and skip zeros
+            final_matrix = []
+            for v in scaled_matrix:
+                if v == 0:
+                    final_matrix.append(0)
+                else:
+                    subtracted = v - prime_volume
+                    final_matrix.append(max(100, subtracted))
+            scaled_matrix = final_matrix
+
         new_payload = ", ".join(str(v) for v in scaled_matrix)
         lines[matrix_line_idx] = f"; flush_volumes_matrix = {new_payload}"
         matrix_rewritten = True
@@ -226,6 +258,10 @@ def main():
     hdr = [f"; Post-processed by cfs_postproc on {datetime.now().isoformat(timespec='seconds')}"]
     if applied_mult is not None:
         hdr.append(f"; applied_flush_multiplier: {applied_mult:.6f}")
+    if enable_prime_tower == 1 and prime_volume is not None:
+        hdr.append(f"; prime_volume subtracted: {prime_volume} mm^3 (prime tower enabled)")
+    elif prime_volume is not None:
+        hdr.append(f"; prime_volume found: {prime_volume} mm^3 (but prime tower disabled)")
     if matrix_rewritten:
         hdr.append("; original flush_volumes_matrix (mm^3):")
         for r in range(4):

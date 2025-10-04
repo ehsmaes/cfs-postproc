@@ -1,6 +1,12 @@
 # cfs_postproc — Creality CFS flush-matrix scaler + safe pre-cut inserts
 
-**Note:** The updated `box.cfg` configuration included in this repository is part of the optimization process and has been optimized to the best of my ability based on testing and analysis of the CFS system behavior.
+**Note:** The updated `k1.box.new.cfg` configuration included in this repository is part of the optimization process and has been optimized to the best of my ability based on testing and analysis of the CFS system behavior.
+
+**High-Level Summary:**
+This script and the optimized `k1.box.new.cfg` work together to significantly reduce tool change filament waste by:
+- **Changing default behavior**: Optimizing the CFS box configuration to eliminate unnecessary repeated movements
+- **Pre-cut retract**: Adding a safe pre-cut retraction sequence to reduce post-cut ooze and improve reliability
+- **Reducing variable color pair purge volumes**: Applying the flush multiplier to color-dependent purge volumes that the firmware ignores
 
 **What it does**
 - Reads the Creality Print comments:
@@ -111,9 +117,9 @@ cfs_postproc.py input.gcode output.gcode [options]
 ; (Any `; flush_multiplier = ...` lines in the output are forced to `1.0` as a guard)
 ```
 
-## About box.cfg
+## About k1.box.cfg
 
-The `box.cfg` file is a custom configuration file used by Creality CFS (Creality Filament System) to control the behavior of the CFS box. This file contains various parameters that govern filament cutting, retraction, extrusion, and cleaning operations.
+The `k1.box.cfg` file is a custom configuration file used by Creality CFS (Creality Filament System) to control the behavior of the CFS box. This file contains various parameters that govern filament cutting, retraction, extrusion, and cleaning operations.
 
 ### Key Parameters and Behaviors
 
@@ -149,5 +155,13 @@ The values have been optimized from the original 140+140=280mm to 90+90=180mm to
 - `clean_right_pos_x`, `clean_right_pos_y`: Right wipe position
 
 ### Sample Files
-- `samples/box.org.cfg`: Original configuration file
-- `samples/box.new.cfg`: Optimized configuration with improved values and documentation
+- `samples/k1.box.org.cfg`: Original configuration file
+- `samples/k1.box.new.cfg`: Optimized configuration with improved values and documentation
+
+**Recent Updates:**
+- Configuration files renamed from `box.org.cfg` and `box.new.cfg` to `k1.box.org.cfg` and `k1.box.new.cfg` to clarify they are specific to Creality K1 printers
+- Enhanced documentation in the configuration files showing original values and detailed explanations
+- Optimized parameters to reduce filament waste while maintaining reliable operation
+
+**Testing Configuration:**
+The configuration and scripts were tested on a Creality K1 with Microswiss nozzle and one CFS box. Some configurations may need to be tuned for other printer models, nozzle types, or multiple CFS box setups.
