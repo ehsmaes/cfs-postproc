@@ -179,11 +179,22 @@ def main():
             park_xy = (float(xs), float(ys))
         except Exception:
             park_xy = None
+    wipe_tower_x = None
+    wipe_tower_y = None
+    for line in lines:
+        match_x = re.search(r";\s*wipe_tower_x\s*=\s*([0-9.-]+)", line)
+        match_y = re.search(r";\s*wipe_tower_y\s*=\s*([0-9.-]+)", line)
+        if match_x:
+            wipe_tower_x = float(match_x.group(1))
+        if match_y:
+            wipe_tower_y = float(match_y.group(1))
     if park_xy is None:
-        auto_center = find_tower_center(lines)
-        if auto_center:
-            park_xy = auto_center
-
+        if wipe_tower_x is not None and wipe_tower_y is not None:
+            park_xy = (wipe_tower_x, wipe_tower_y)
+        else:
+            auto_center = find_tower_center(lines)
+            if auto_center:
+                park_xy = auto_center
     orig_matrix = matrix_nums[:] if matrix_nums else None
     scaled_matrix = None
     matrix_rewritten = False
@@ -195,16 +206,15 @@ def main():
 
         # If prime tower is enabled and prime_volume is found, subtract it from scaled matrix values
         if enable_prime_tower == 1 and prime_volume is not None and prime_volume > 0:
-            # Subtract prime_volume from each value, but never go below 100 and skip zeros
+            # Subtract prime_volume from each value, but never go below 50 and skip zeros
             final_matrix = []
             for v in scaled_matrix:
                 if v == 0:
                     final_matrix.append(0)
                 else:
                     subtracted = v - prime_volume
-                    final_matrix.append(max(100, subtracted))
+                    final_matrix.append(max(50, subtracted))
             scaled_matrix = final_matrix
-
         new_payload = ", ".join(str(v) for v in scaled_matrix)
         lines[matrix_line_idx] = f"; flush_volumes_matrix = {new_payload}"
         matrix_rewritten = True
