@@ -106,21 +106,21 @@ cfs_postproc.py input.gcode output.gcode [options]
 
 ## Header example
 ```
-; Post-processed by cfs_postproc on 2025-10-01T12:34:56
-; applied_flush_multiplier: 0.250000
+; Post-processed by cfs_postproc on 2025-10-05T18:28:56
+; applied_flush_multiplier: 0.600000
+; prime_volume subtracted: 30 mm^3 (prime tower enabled)
 ; original flush_volumes_matrix (mm^3):
-;      0,  106,  114,   70
-;    124,    0,  113,   81
-;    195,  184,    0,   72
-;    190,  214,  151,    0
+;      0,  319,  329,  462
+;    785,    0,  742,  760
+;    487,  307,    0,  657
+;    355,  280,  447,    0
 ; scaled flush_volumes_matrix (mm^3) written:
-;      0,   27,   29,   18
-;     31,    0,   28,   20
-;     49,   46,    0,   18
-;     48,   54,   38,    0
+;      0,  161,  167,  247
+;    441,    0,  415,  426
+;    262,  154,    0,  364
+;    183,  138,  238,    0
 ; pre-cut: 80.0mm @ F600
-; park XY: X159.500 Y39.750 (tower-center autodetect)
-; (Any `; flush_multiplier = ...` lines in the output are forced to `1.0` as a guard)
+; park XY: X131.692 Y156.668 (tower-center autodetect)
 ```
 
 ## About k1.box.cfg
