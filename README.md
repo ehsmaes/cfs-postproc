@@ -123,9 +123,9 @@ cfs_postproc.py input.gcode output.gcode [options]
 ; park XY: X131.692 Y156.668 (tower-center autodetect)
 ```
 
-## About k1.box.cfg
+## About box.cfg
 
-The `k1.box.cfg` file is a custom configuration file used by Creality CFS (Creality Filament System) to control the behavior of the CFS box. This file contains various parameters that govern filament cutting, retraction, extrusion, and cleaning operations.
+The `box.cfg` (`k1.box.new.cfg`) file is a custom configuration file used by Creality CFS (Creality Filament System) to control the behavior of the CFS box. This file contains various parameters that govern filament cutting, retraction, extrusion, and cleaning operations.
 
 ### Key Parameters and Behaviors
 
