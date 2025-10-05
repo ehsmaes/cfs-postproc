@@ -1,9 +1,7 @@
 # cfs_postproc — Creality CFS flush-matrix scaler + safe pre-cut inserts
 
-**Note:** The updated `k1.box.new.cfg` configuration included in this repository is part of the optimization process and has been optimized to the best of my ability based on testing and analysis of the CFS system behavior.
-
 **High-Level Summary:**
-This script and the optimized `k1.box.new.cfg` work together to significantly reduce tool change filament waste by:
+This post processor script and the optimized `box.cfg` work together to significantly reduce tool change filament waste by:
 - **Changing default behavior**: Optimizing the CFS box configuration to eliminate unnecessary repeated movements
 - **Pre-cut retract**: Adding a safe pre-cut retraction sequence to reduce post-cut ooze and improve reliability
 - **Reducing variable color pair purge volumes**: Applying the flush multiplier to color-dependent purge volumes that the firmware ignores
@@ -62,14 +60,22 @@ The Creality CFS firmware is designed to parse the `; flush_volumes_matrix = ...
 - `src/cfs_postproc/__main__.py` – enables running as module: `python -m cfs_postproc`
 - `samples/` – sample G-code files and configuration examples
 
-## Install
-Place both files somewhere convenient, e.g. `~/Documents/scripts/` and make them executable:
-```bash
-chmod +x ~/Documents/scripts/cfs_postproc.py
-chmod +x ~/Documents/scripts/cfs_postproc_rightclick.py
-```
+## Installation Instructions
+To install the cfs_postproc script, follow these steps:
+1. Ensure you have Python 3.8 or later installed on your system.
+2. Clone the repository using `git clone https://github.com/ehsmaes/cfs-postproc.git`
+3. Navigate to the cloned repository using `cd cfs-postproc`
+4. Install the required dependencies using `pip install -r requirements.txt`
+5. Make the script executable using `chmod +x src/cfs_postproc/cfs_postproc.py`
+6. Place the script in a convenient location, such as `~/Documents/scripts/`
+7. Note: cfs_postproc_rightclick.py is recommended to be installed as a file manager context menu, but the exact steps for this vary depending on your operating system.
+8. Install the `samples/k1.box.new.cfg` file as `box.cfg` on your K1 printer. Review and tweak the values before use, and save the original `box.cfg` file so you can roll back if needed.
 
 ## Usage
+The idea was to run the post processor from within the slicer but I never figured out how to get it running. If you figure it out, let me know! Until then, slice the file, export the GCODE, post process, then upload to your printer.
+Slicer settings (Creality Print):
+- Modify the Flush volume multiplier (small faucet at the top of the filament panel). A good start is 0.6. Ignore the warnings.
+- Enable Prime tower. Try Width 20 and Prime volume 30 or 50.
 ### A) Command line (single file)
 ```bash
 python3 ~/Documents/scripts/cfs_postproc.py input.gcode output_scaled_precut.gcode \
@@ -155,7 +161,6 @@ The values have been optimized from the original 140+140=280mm to 90+90=180mm to
 - `clean_right_pos_x`, `clean_right_pos_y`: Right wipe position
 
 ### Sample Files
-- `samples/k1.box.org.cfg`: Original configuration file
 - `samples/k1.box.new.cfg`: Optimized configuration with improved values and documentation
 
 **Recent Updates:**
