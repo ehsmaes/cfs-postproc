@@ -160,9 +160,6 @@ The values have been optimized from the original 140+140=280mm to 90+90=180mm to
 - `clean_left_pos_x`, `clean_left_pos_y`: Left wipe position (PTFE pad)
 - `clean_right_pos_x`, `clean_right_pos_y`: Right wipe position
 
-### Sample Files
-- `samples/k1.box.new.cfg`: Optimized configuration with improved values and documentation
-
 **Recent Updates:**
 - Configuration files renamed from `box.org.cfg` and `box.new.cfg` to `k1.box.org.cfg` and `k1.box.new.cfg` to clarify they are specific to Creality K1 printers
 - Enhanced documentation in the configuration files showing original values and detailed explanations
